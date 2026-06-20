@@ -19,28 +19,28 @@ def is_authorized(email: str) -> bool:
 
 @router.post("/send-magic-link")
 async def send_magic_link(req: MagicLinkRequest, request: Request):
-    email = req.email.lower()
-    
-    if not is_authorized(email):
-        raise HTTPException(status_code=403, detail="Email not authorized to access the portal.")
-
-    # Generate a random 32-character token
-    token = secrets.token_urlsafe(32)
-    expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
-
-    # Store token in MongoDB
-    await app.database.db["magic_links"].insert_one({
-        "email": email,
-        "token": token,
-        "expires_at": expires_at
-    })
-
-    # Construct the magic link URL dynamically based on the frontend origin
-    origin = request.headers.get("origin", "http://localhost:5173")
-    magic_link = f"{origin}/verify?token={token}&email={email}"
-    
-    # Send email via Resend
     try:
+        email = req.email.lower()
+        
+        if not is_authorized(email):
+            raise HTTPException(status_code=403, detail="Email not authorized to access the portal.")
+
+        # Generate a random 32-character token
+        token = secrets.token_urlsafe(32)
+        expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
+
+        # Store token in MongoDB
+        await app.database.db["magic_links"].insert_one({
+            "email": email,
+            "token": token,
+            "expires_at": expires_at
+        })
+
+        # Construct the magic link URL dynamically based on the frontend origin
+        origin = request.headers.get("origin", "http://localhost:5173")
+        magic_link = f"{origin}/verify?token={token}&email={email}"
+        
+        # Send email via Resend
         r = resend.Emails.send({
             "from": "AsthmaGuard <onboarding@resend.dev>",
             "to": email,
@@ -52,11 +52,14 @@ async def send_magic_link(req: MagicLinkRequest, request: Request):
             <p>If you did not request this, please ignore this email.</p>
             """
         })
+        return {"message": "Magic link sent to your email."}
+    except HTTPException:
+        raise
     except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Failed to send email")
-
-    return {"message": "Magic link sent to your email."}
+        import traceback
+        error_details = traceback.format_exc()
+        print(error_details)
+        raise HTTPException(status_code=500, detail=f"Server error: {str(e)} | Trace: {error_details}")
 
 @router.post("/verify", response_model=TokenResponse)
 async def verify_token(req: VerifyTokenRequest):
