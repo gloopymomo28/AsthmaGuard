@@ -30,7 +30,7 @@ async def send_magic_link(req: MagicLinkRequest, request: Request):
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
 
         # Store token in MongoDB
-        await app.database.db["magic_links"].insert_one({
+        await app.database.get_database()["magic_links"].insert_one({
             "email": email,
             "token": token,
             "expires_at": expires_at
