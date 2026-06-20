@@ -7,7 +7,7 @@ from app.config import settings
 from app.schemas.auth import MagicLinkRequest, VerifyTokenRequest, TokenResponse
 from app.database import db
 
-router = APIRouter(prefix="/auth", tags=["Authentication"])
+router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 resend.api_key = settings.RESEND_API_KEY
 
