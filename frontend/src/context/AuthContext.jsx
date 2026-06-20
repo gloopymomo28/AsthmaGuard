@@ -1,36 +1,62 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import axios from 'axios';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // We use the same Vite env var for API
+  const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
   useEffect(() => {
-    // Check local storage on initial load
-    const authStatus = localStorage.getItem('isDoctorAuthenticated');
-    if (authStatus === 'true') {
+    // Check local storage for JWT on initial load
+    const token = localStorage.getItem('ag_token');
+    if (token) {
       setIsAuthenticated(true);
     }
+    setIsLoading(false);
   }, []);
 
-  const login = (password) => {
-    // Hardcoded demo password for the prototype
-    if (password === 'asthmaguard2026') {
-      setIsAuthenticated(true);
-      localStorage.setItem('isDoctorAuthenticated', 'true');
-      return true;
+  const sendMagicLink = async (email) => {
+    try {
+      await axios.post(`${apiUrl}/auth/send-magic-link`, { email });
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.detail || 'Failed to send magic link.' 
+      };
     }
-    return false;
+  };
+
+  const verifyMagicLink = async (token, email) => {
+    try {
+      const response = await axios.post(`${apiUrl}/auth/verify`, { token, email });
+      const { access_token } = response.data;
+      
+      localStorage.setItem('ag_token', access_token);
+      localStorage.setItem('ag_email', email);
+      setIsAuthenticated(true);
+      return { success: true };
+    } catch (error) {
+      return { 
+        success: false, 
+        message: error.response?.data?.detail || 'Invalid or expired token.' 
+      };
+    }
   };
 
   const logout = () => {
     setIsAuthenticated(false);
-    localStorage.removeItem('isDoctorAuthenticated');
+    localStorage.removeItem('ag_token');
+    localStorage.removeItem('ag_email');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
-      {children}
+    <AuthContext.Provider value={{ isAuthenticated, isLoading, sendMagicLink, verifyMagicLink, logout }}>
+      {!isLoading && children}
     </AuthContext.Provider>
   );
 };

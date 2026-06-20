@@ -7,10 +7,16 @@ import Patients from './pages/Patients';
 import Alerts from './pages/Alerts';
 import Settings from './pages/Settings';
 import Login from './pages/Login';
+import Verify from './pages/Verify';
 import { AuthProvider, useAuth } from './context/AuthContext';
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <div className="min-h-screen bg-slate-900 flex items-center justify-center text-indigo-500">Loading...</div>;
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -23,6 +29,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<Login />} />
+          <Route path="/verify" element={<Verify />} />
           <Route path="/" element={
             <ProtectedRoute>
               <Layout />

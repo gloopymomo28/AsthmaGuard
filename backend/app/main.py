@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from app.database import connect_to_mongo, close_mongo_connection
-from app.routes import patients, predictions
+from app.routes import patients, predictions, auth
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -26,6 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(predictions.router)
 
