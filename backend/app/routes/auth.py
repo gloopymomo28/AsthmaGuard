@@ -63,13 +63,13 @@ async def send_magic_link(req: MagicLinkRequest, request: Request):
 
 @router.post("/verify", response_model=TokenResponse)
 async def verify_token(req: VerifyTokenRequest):
-    record = await app.database.db["magic_links"].find_one({"token": req.token, "email": req.email.lower()})
+    record = await app.database.get_database()["magic_links"].find_one({"token": req.token, "email": req.email.lower()})
     
     if not record:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        await app.database.db["magic_links"].delete_one({"_id": record["_id"]})
+        await app.database.get_database()["magic_links"].delete_one({"_id": record["_id"]})
         raise HTTPException(status_code=401, detail="Token has expired")
 
     # Token is valid. Issue JWT
@@ -80,6 +80,6 @@ async def verify_token(req: VerifyTokenRequest):
     jwt_token = jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
     
     # Delete the used magic link
-    await app.database.db["magic_links"].delete_one({"_id": record["_id"]})
+    await app.database.get_database()["magic_links"].delete_one({"_id": record["_id"]})
 
     return TokenResponse(access_token=jwt_token)
