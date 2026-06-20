@@ -13,3 +13,4 @@ python-multipart
 resend==2.32.2
 pyjwt==2.13.0
 email-validator==2.1.1
+certifi
