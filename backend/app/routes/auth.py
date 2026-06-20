@@ -1,11 +1,11 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from datetime import datetime, timedelta, timezone
 import secrets
 import resend
 import jwt
 from app.config import settings
 from app.schemas.auth import MagicLinkRequest, VerifyTokenRequest, TokenResponse
-from app.database import db
+import app.database
 
 router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
@@ -18,7 +18,7 @@ def is_authorized(email: str) -> bool:
     return email.lower() in whitelist
 
 @router.post("/send-magic-link")
-async def send_magic_link(req: MagicLinkRequest):
+async def send_magic_link(req: MagicLinkRequest, request: Request):
     email = req.email.lower()
     
     if not is_authorized(email):
@@ -29,17 +29,15 @@ async def send_magic_link(req: MagicLinkRequest):
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=15)
 
     # Store token in MongoDB
-    await db["magic_links"].insert_one({
+    await app.database.db["magic_links"].insert_one({
         "email": email,
         "token": token,
         "expires_at": expires_at
     })
 
-    # Construct the magic link URL (assumes frontend is running on local or vercel)
-    # In production, this should be the live Vercel URL
-    # For now, we will construct a relative path if possible, or use a hardcoded dev url
-    # The frontend will be expected to intercept /verify?token=...&email=...
-    magic_link = f"http://localhost:5173/verify?token={token}&email={email}"
+    # Construct the magic link URL dynamically based on the frontend origin
+    origin = request.headers.get("origin", "http://localhost:5173")
+    magic_link = f"{origin}/verify?token={token}&email={email}"
     
     # Send email via Resend
     try:
@@ -62,13 +60,13 @@ async def send_magic_link(req: MagicLinkRequest):
 
 @router.post("/verify", response_model=TokenResponse)
 async def verify_token(req: VerifyTokenRequest):
-    record = await db["magic_links"].find_one({"token": req.token, "email": req.email.lower()})
+    record = await app.database.db["magic_links"].find_one({"token": req.token, "email": req.email.lower()})
     
     if not record:
         raise HTTPException(status_code=401, detail="Invalid or expired token")
     
     if record["expires_at"].replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
-        await db["magic_links"].delete_one({"_id": record["_id"]})
+        await app.database.db["magic_links"].delete_one({"_id": record["_id"]})
         raise HTTPException(status_code=401, detail="Token has expired")
 
     # Token is valid. Issue JWT
@@ -79,6 +77,6 @@ async def verify_token(req: VerifyTokenRequest):
     jwt_token = jwt.encode(payload, settings.JWT_SECRET, algorithm="HS256")
     
     # Delete the used magic link
-    await db["magic_links"].delete_one({"_id": record["_id"]})
+    await app.database.db["magic_links"].delete_one({"_id": record["_id"]})
 
     return TokenResponse(access_token=jwt_token)
