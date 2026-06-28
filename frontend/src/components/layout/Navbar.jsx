@@ -2,7 +2,6 @@ import { Bell, Search, Menu } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { patientService } from '../../services/api';
-import { useAuth } from '../../context/AuthContext';
 
 export default function Navbar() {
   const navigate = useNavigate();
@@ -10,7 +9,6 @@ export default function Navbar() {
   const [patients, setPatients] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const searchRef = useRef(null);
-  const { logout } = useAuth();
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -87,15 +85,6 @@ export default function Navbar() {
         >
           <Bell size={20} />
           <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse"></span>
-        </button>
-        <button
-          onClick={() => {
-            logout();
-            navigate('/login');
-          }}
-          className="px-4 py-2 bg-rose-500/10 text-rose-400 border border-rose-500/20 hover:bg-rose-500/20 rounded-lg text-sm font-medium transition-colors"
-        >
-          Sign Out
         </button>
       </div>
     </header>
