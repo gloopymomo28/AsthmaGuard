@@ -221,19 +221,24 @@ export default function PatientDetailScreen() {
 
           {prediction.contributing_factors && (
             <>
-              <Text style={styles.factorsTitle}>Contributing Factors</Text>
-              {Object.entries(prediction.contributing_factors).map(([key, val]) => (
-                <View key={key} style={styles.factorRow}>
-                  <Text style={styles.factorLabel}>{key}</Text>
+              <Text style={styles.factorsTitle}>SHAP Analysis (Explainable AI)</Text>
+              {prediction.contributing_factors.map((factor: any, index: number) => (
+                <View key={index} style={styles.factorRow}>
+                  <Text style={styles.factorLabel} numberOfLines={1}>{factor.feature}</Text>
                   <View style={styles.factorBarTrack}>
                     <View
                       style={[
                         styles.factorBarFill,
-                        { width: `${(val as number) * 100}%`, backgroundColor: Colors.dark.primary },
+                        { 
+                          width: `${Math.min(Math.abs(factor.value) * 100, 100)}%`, 
+                          backgroundColor: factor.value > 0 ? Colors.dark.danger : Colors.dark.success 
+                        },
                       ]}
                     />
                   </View>
-                  <Text style={styles.factorValue}>{((val as number) * 100).toFixed(0)}%</Text>
+                  <Text style={[styles.factorValue, { color: factor.value > 0 ? Colors.dark.danger : Colors.dark.success }]}>
+                    {factor.impact}
+                  </Text>
                 </View>
               ))}
             </>
