@@ -7,44 +7,7 @@ const api = axios.create({
 });
 
 // Mock data fallback (mirrors web frontend)
-const mockPatients = [
-  {
-    id: '1',
-    name: 'Eleanor Vance',
-    age: 42,
-    sex: 'Female',
-    severity: 'Moderate',
-    baselineFEV1: 82,
-    riskScore: 35,
-    lastUpdated: '10 mins ago',
-    trend: [25, 30, 28, 35],
-    vitals: { hr: 78, rr: 16, spo2: 98, pef: 320 },
-  },
-  {
-    id: '2',
-    name: 'Marcus Thorne',
-    age: 28,
-    sex: 'Male',
-    severity: 'Severe',
-    baselineFEV1: 65,
-    riskScore: 78,
-    lastUpdated: '2 mins ago',
-    trend: [45, 60, 72, 78],
-    vitals: { hr: 95, rr: 22, spo2: 93, pef: 240 },
-  },
-  {
-    id: '3',
-    name: 'Sarah Jenkins',
-    age: 35,
-    sex: 'Female',
-    severity: 'Mild',
-    baselineFEV1: 95,
-    riskScore: 12,
-    lastUpdated: '1 hour ago',
-    trend: [10, 15, 12, 12],
-    vitals: { hr: 72, rr: 14, spo2: 99, pef: 410 },
-  },
-];
+const mockPatients: Patient[] = [];
 
 export const patientService = {
   getPatients: async (): Promise<any[]> => {

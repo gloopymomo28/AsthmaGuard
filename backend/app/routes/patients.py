@@ -1,11 +1,19 @@
 from fastapi import APIRouter, HTTPException, status
 from typing import List
 from app.schemas.patient import PatientCreate, PatientRecord
-from app.database import get_patients_collection
+from app.database import get_patients_collection, get_predictions_collection
 from bson import ObjectId
 from datetime import datetime
 
 router = APIRouter(prefix="/api/patients", tags=["Patients"])
+
+@router.delete("/admin/clear-all")
+async def clear_all_data():
+    patients_col = get_patients_collection()
+    predictions_col = get_predictions_collection()
+    await patients_col.delete_many({})
+    await predictions_col.delete_many({})
+    return {"message": "All patients and predictions cleared"}
 
 def patient_helper(patient) -> PatientRecord:
     patient["id"] = str(patient["_id"])
