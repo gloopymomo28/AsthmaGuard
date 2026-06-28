@@ -28,9 +28,14 @@ class PatientRecord(PatientCreate):
     created_at: datetime = Field(default_factory=datetime.utcnow)
     status: str = "active"
 
+class FeatureContribution(BaseModel):
+    feature: str
+    impact: str # e.g. "+15%"
+    value: float # Raw SHAP value or percentage for sorting/charting
+
 class PredictionResult(BaseModel):
     patient_id: str
     timestamps: List[str]
     risk_scores: List[float]
-    contributing_factors: List[str]
+    contributing_factors: List[FeatureContribution]
     alert_level: str

@@ -26,9 +26,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+from fastapi import WebSocket, WebSocketDisconnect
+from app.websockets import manager
+
 app.include_router(auth.router)
 app.include_router(patients.router)
 app.include_router(predictions.router)
+
+@app.websocket("/ws/alerts")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            # We don't expect messages from clients, but we need to keep connection open
+            await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
 
 @app.get("/")
 async def root():

@@ -17,6 +17,10 @@ def init_model():
     global engine
     engine = InferenceEngine(settings.MODEL_PATH, preprocessor)
 
+from app.websockets import manager
+import asyncio
+import random
+
 @router.post("/demo", response_model=PredictionResult)
 async def demo_prediction():
     generator = SyntheticAsthmaDataGenerator(n_steps=720)
@@ -28,20 +32,30 @@ async def demo_prediction():
     if engine is None:
         init_model()
         
-    risk_scores, factors = engine.predict(physio, env, clinical)
+    risk_scores, _ = engine.predict(physio, env, clinical)
     
     timestamps = [(datetime.utcnow() - timedelta(hours=720-i)).isoformat() for i in range(len(risk_scores))]
     
     max_risk = max(risk_scores)
     alert_level = "High" if max_risk > 0.8 else "Medium" if max_risk > 0.5 else "Low"
     
-    return PredictionResult(
+    # Generate mock SHAP-like values
+    factors = [
+        {"feature": "FEV1 Drop", "impact": "+15%", "value": 0.15},
+        {"feature": "Air Quality (PM2.5)", "impact": "+12%", "value": 0.12},
+        {"feature": "Recent Rescue Inhaler", "impact": "+20%", "value": 0.20},
+        {"feature": "Current Medication", "impact": "-10%", "value": -0.10}
+    ]
+    
+    result = PredictionResult(
         patient_id="demo_patient",
         timestamps=timestamps,
         risk_scores=risk_scores,
         contributing_factors=factors,
         alert_level=alert_level
     )
+    
+    return result
 
 @router.post("/{patient_id}", response_model=PredictionResult)
 async def generate_prediction(patient_id: str):
@@ -60,6 +74,9 @@ async def generate_prediction(patient_id: str):
     
     pred_coll = get_predictions_collection()
     await pred_coll.insert_one(result.dict())
+    
+    # Broadcast the real prediction
+    asyncio.create_task(manager.broadcast(result.dict()))
     
     return result
 
