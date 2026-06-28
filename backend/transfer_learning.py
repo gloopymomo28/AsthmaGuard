@@ -8,7 +8,7 @@ from app.data.preprocessing import AsthmaDataPreprocessor
 from app.models.patchtst import PatchTSTModel
 from app.models.losses import CombinedSurvivalLoss
 
-def run_transfer_learning(csv_path="data/clinical_data.csv"):
+def run_transfer_learning(csv_path="data/camp_teaching/CAMP_csv/camp_teach.csv"):
     print(f"Initializing Transfer Learning pipeline...")
     
     # 1. Load Public Dataset
