@@ -14,28 +14,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType>({} as AuthContextType);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>('doctor@demo.com');
 
   useEffect(() => {
-    checkAuth();
+    // Auth bypassed for now
   }, []);
 
   const checkAuth = async () => {
-    try {
-      const token = await SecureStore.getItemAsync('ag_token');
-      const email = await SecureStore.getItemAsync('ag_email');
-      if (token) {
-        setIsAuthenticated(true);
-        setUserEmail(email);
-      }
-    } catch (err) {
-      console.warn('Error reading secure store:', err);
-    } finally {
-      setIsLoading(false);
-    }
+    // Auth bypassed
   };
+
 
   const sendMagicLink = async (email: string) => {
     try {

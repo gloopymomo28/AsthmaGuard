@@ -4,19 +4,14 @@ import axios from 'axios';
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
 
   // We use the same Vite env var for API
   const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
   useEffect(() => {
-    // Check local storage for JWT on initial load
-    const token = localStorage.getItem('ag_token');
-    if (token) {
-      setIsAuthenticated(true);
-    }
-    setIsLoading(false);
+    // Auth bypassed for now
   }, []);
 
   const sendMagicLink = async (email) => {
