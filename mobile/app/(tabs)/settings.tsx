@@ -1,19 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
-import { useAuth } from '../../context/AuthContext';
 
 export default function SettingsScreen() {
-  const { userEmail, logout } = useAuth();
-
-  const handleLogout = () => {
-    Alert.alert('Log Out', 'Are you sure you want to sign out?', [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Log Out', style: 'destructive', onPress: logout },
-    ]);
-  };
-
   const SettingsRow = ({
     icon,
     title,
@@ -54,7 +44,7 @@ export default function SettingsScreen() {
         </View>
         <View>
           <Text style={styles.profileName}>Physician</Text>
-          <Text style={styles.profileEmail}>{userEmail || 'Not signed in'}</Text>
+          <Text style={styles.profileEmail}>doctor@demo.com</Text>
         </View>
       </View>
 
@@ -72,17 +62,6 @@ export default function SettingsScreen() {
         <SettingsRow icon="hardware-chip-outline" title="Model Version" subtitle="PatchTST v1 - CAMP fine-tuned" />
         <SettingsRow icon="server-outline" title="API Endpoint" subtitle="asthmaguard.onrender.com" />
         <SettingsRow icon="shield-checkmark-outline" title="Data Compliance" subtitle="HIPAA / NIH DUA" />
-      </View>
-
-      {/* Account */}
-      <Text style={styles.sectionLabel}>Account</Text>
-      <View style={styles.section}>
-        <SettingsRow
-          icon="log-out-outline"
-          title="Log Out"
-          onPress={handleLogout}
-          danger
-        />
       </View>
 
       <Text style={styles.version}>AsthmaGuard AI v1.0.0</Text>
