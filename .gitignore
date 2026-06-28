@@ -24,3 +24,7 @@ Thumbs.db
 # IDEs
 .vscode/
 .idea/
+
+# NIH Research Data (restricted, do NOT commit)
+backend/data/camp_teaching/
+CAMP_Teaching.zip
