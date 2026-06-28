@@ -41,17 +41,6 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div className="p-4 m-4 rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 border border-slate-700/50">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-slate-700 flex items-center justify-center font-bold text-emerald-400">
-            DR
-          </div>
-          <div>
-            <p className="text-sm font-medium">Dr. Reynolds</p>
-            <p className="text-xs text-slate-400">Pulmonology</p>
-          </div>
-        </div>
-      </div>
     </aside>
   );
 }
