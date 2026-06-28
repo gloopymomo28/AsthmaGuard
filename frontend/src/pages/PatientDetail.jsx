@@ -129,7 +129,7 @@ export default function PatientDetail() {
             />
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <ContributingFactors />
+              <ContributingFactors factors={trajectory.length > 0 ? trajectory[trajectory.length - 1].contributing_factors : []} />
               
               <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
                 <h3 className="font-semibold text-lg text-slate-100 mb-6">Environmental Context</h3>

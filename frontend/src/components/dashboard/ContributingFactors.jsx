@@ -1,30 +1,45 @@
-export default function ContributingFactors() {
-  const factors = [
-    { name: 'High SABA (Rescue Inhaler) Use (>2/week)', weight: 90, color: 'bg-rose-500' },
-    { name: 'Nighttime Awakenings (due to asthma)', weight: 85, color: 'bg-rose-500' },
-    { name: 'Non-adherence to Controller Inhaler', weight: 75, color: 'bg-amber-500' },
-    { name: 'Activity Limitations', weight: 60, color: 'bg-amber-500' },
-    { name: 'AQI (High PM2.5)', weight: 45, color: 'bg-emerald-500' }
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
+
+export default function ContributingFactors({ factors = [] }) {
+  // If no dynamic factors provided, use fallback
+  const data = factors.length > 0 ? factors : [
+    { feature: 'High SABA Use', impact: '+25%', value: 0.25 },
+    { feature: 'FEV1 Drop', impact: '+15%', value: 0.15 },
+    { feature: 'Pollen Level', impact: '+10%', value: 0.10 },
+    { feature: 'ICS Adherence', impact: '-20%', value: -0.20 }
   ];
 
   return (
     <div className="bg-slate-800/40 backdrop-blur-sm border border-slate-700/50 rounded-2xl p-6">
-      <h3 className="font-semibold text-lg text-slate-100 mb-6">Key Risk Drivers</h3>
-      <div className="space-y-4">
-        {factors.map((factor, i) => (
-          <div key={i}>
-            <div className="flex justify-between text-sm mb-1.5">
-              <span className="text-slate-300">{factor.name}</span>
-              <span className="text-slate-400">{factor.weight}%</span>
-            </div>
-            <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full ${factor.color}`} 
-                style={{ width: `${factor.weight}%` }}
-              />
-            </div>
-          </div>
-        ))}
+      <h3 className="font-semibold text-lg text-slate-100 mb-6">Explainable AI (SHAP Analysis)</h3>
+      <div className="h-48 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={data} layout="vertical" margin={{ top: 0, right: 20, left: 20, bottom: 0 }}>
+            <XAxis type="number" hide />
+            <YAxis 
+              dataKey="feature" 
+              type="category" 
+              axisLine={false} 
+              tickLine={false} 
+              tick={{ fill: '#94a3b8', fontSize: 12 }} 
+              width={100} 
+            />
+            <Tooltip 
+              cursor={{fill: '#1e293b'}}
+              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px' }}
+              formatter={(value, name, props) => [props.payload.impact, 'Impact']}
+            />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]}>
+              {data.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.value > 0 ? '#f43f5e' : '#10b981'} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="mt-4 flex gap-4 text-xs text-slate-400">
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-rose-500"></div> Increases Risk</div>
+        <div className="flex items-center gap-1"><div className="w-3 h-3 rounded-full bg-emerald-500"></div> Decreases Risk</div>
       </div>
     </div>
   );

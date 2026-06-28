@@ -4,10 +4,14 @@ import StatsCard from '../components/dashboard/StatsCard';
 import PatientCard from '../components/dashboard/PatientCard';
 import AlertFeed from '../components/dashboard/AlertFeed';
 import { patientService } from '../services/api';
+import { useAlertSocket } from '../hooks/useAlertSocket';
 
 export default function Dashboard() {
   const [patients, setPatients] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // Real-time WebSocket hook
+  const lastAlert = useAlertSocket();
 
   useEffect(() => {
     const fetchPatients = async () => {
@@ -17,6 +21,21 @@ export default function Dashboard() {
     };
     fetchPatients();
   }, []);
+
+  // Update patient list dynamically if an alert comes in
+  useEffect(() => {
+    if (lastAlert) {
+      setPatients(prev => {
+        const index = prev.findIndex(p => p.id === lastAlert.patient_id);
+        if (index === -1) return prev;
+        
+        const newPatients = [...prev];
+        const risk = Math.round(lastAlert.risk_scores[lastAlert.risk_scores.length - 1] * 100);
+        newPatients[index] = { ...newPatients[index], riskScore: risk, lastUpdated: 'Just now' };
+        return newPatients;
+      });
+    }
+  }, [lastAlert]);
 
   const highRiskCount = patients.filter(p => p.riskScore >= 70).length;
 
