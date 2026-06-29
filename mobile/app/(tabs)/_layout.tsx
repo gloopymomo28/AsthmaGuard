@@ -1,24 +1,29 @@
-import { Tabs } from 'expo-router';
+import { Drawer } from 'expo-router/drawer';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
 
-export default function TabLayout() {
+export default function DrawerLayout() {
   return (
-    <Tabs
+    <Drawer
       screenOptions={{
-        tabBarActiveTintColor: Colors.dark.primary,
-        tabBarInactiveTintColor: Colors.dark.textMuted,
-        tabBarStyle: {
+        drawerPosition: 'left',
+        drawerType: 'front',
+        drawerStyle: {
           backgroundColor: Colors.dark.surface,
-          borderTopColor: Colors.dark.border,
-          borderTopWidth: 1,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 6,
+          width: 280,
         },
-        tabBarLabelStyle: {
-          fontSize: 11,
+        drawerActiveTintColor: Colors.dark.primary,
+        drawerInactiveTintColor: Colors.dark.textSecondary,
+        drawerActiveBackgroundColor: Colors.dark.background,
+        drawerLabelStyle: {
+          fontSize: 15,
           fontWeight: '600',
+          marginLeft: -10,
+        },
+        drawerItemStyle: {
+          borderRadius: 8,
+          marginVertical: 2,
+          paddingVertical: 2,
         },
         headerStyle: {
           backgroundColor: Colors.dark.surface,
@@ -30,51 +35,46 @@ export default function TabLayout() {
           fontWeight: '700',
           fontSize: 18,
         },
+        headerTintColor: Colors.dark.text,
       }}
     >
-      <Tabs.Screen
+      <Drawer.Screen
         name="index"
         options={{
           title: 'Dashboard',
           headerTitle: 'AsthmaGuard AI',
-          tabBarIcon: ({ color, size }) => (
+          drawerIcon: ({ color, size }) => (
             <Ionicons name="grid" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
+      <Drawer.Screen
         name="patients"
         options={{
           title: 'Patients',
-          tabBarIcon: ({ color, size }) => (
+          drawerIcon: ({ color, size }) => (
             <Ionicons name="people" size={size} color={color} />
           ),
         }}
       />
-      <Tabs.Screen
+      <Drawer.Screen
         name="alerts"
         options={{
           title: 'Alerts',
-          tabBarIcon: ({ color, size }) => (
+          drawerIcon: ({ color, size }) => (
             <Ionicons name="notifications" size={size} color={color} />
           ),
-          tabBarBadge: 3,
-          tabBarBadgeStyle: {
-            backgroundColor: Colors.dark.danger,
-            fontSize: 10,
-            fontWeight: '700',
-          },
         }}
       />
-      <Tabs.Screen
+      <Drawer.Screen
         name="settings"
         options={{
           title: 'Settings',
-          tabBarIcon: ({ color, size }) => (
+          drawerIcon: ({ color, size }) => (
             <Ionicons name="settings-sharp" size={size} color={color} />
           ),
         }}
       />
-    </Tabs>
+    </Drawer>
   );
 }
