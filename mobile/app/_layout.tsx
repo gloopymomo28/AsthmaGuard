@@ -11,6 +11,16 @@ import { AuthProvider } from '../context/AuthContext';
 import Colors from '../constants/Colors';
 import API_URL from '../constants/Api';
 
+import * as Notifications from 'expo-notifications';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: true,
+  }),
+});
+
 export { ErrorBoundary } from 'expo-router';
 
 SplashScreen.preventAutoHideAsync();
@@ -30,20 +40,25 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Real-time alerts via WebSockets (Expo Go compatible — uses Alert instead of push notifications)
+  // Real-time alerts via WebSockets
   useEffect(() => {
     const wsUrl = API_URL.replace(/^http/, 'ws').replace(/\/api$/, '/ws/alerts');
     const ws = new WebSocket(wsUrl);
 
-    ws.onmessage = (event) => {
+    ws.onmessage = async (event) => {
       try {
         const data = JSON.parse(event.data);
         if (data.alert_level === 'High') {
           const risk = Math.round(data.risk_scores[data.risk_scores.length - 1] * 100);
-          Alert.alert(
-            'CRITICAL ALERT 🚨',
-            `A patient's AI risk score jumped to ${risk}%. Check dashboard immediately.`
-          );
+          
+          await Notifications.scheduleNotificationAsync({
+            content: {
+              title: 'CRITICAL ALERT 🚨',
+              body: `A patient's AI risk score jumped to ${risk}%. Check dashboard immediately.`,
+              sound: true,
+            },
+            trigger: null, // trigger immediately
+          });
         }
       } catch (e) {
         console.warn('Failed to parse websocket message', e);
@@ -78,6 +93,16 @@ export default function RootLayout() {
             headerStyle: { backgroundColor: Colors.dark.surface },
             headerTintColor: Colors.dark.text,
             presentation: 'card',
+          }}
+        />
+        <Stack.Screen
+          name="add-patient"
+          options={{
+            headerShown: true,
+            headerTitle: 'Add New Patient',
+            headerStyle: { backgroundColor: Colors.dark.surface },
+            headerTintColor: Colors.dark.text,
+            presentation: 'modal',
           }}
         />
       </Stack>

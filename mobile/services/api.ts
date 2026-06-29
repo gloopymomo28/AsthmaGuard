@@ -44,6 +44,16 @@ export const patientService = {
       return false;
     }
   },
+
+  createPatient: async (data: any): Promise<any> => {
+    try {
+      const response = await api.post('/patients', data);
+      return response.data;
+    } catch (error) {
+      console.warn('Failed to create patient', error);
+      return null;
+    }
+  },
 };
 
 export const predictionService = {

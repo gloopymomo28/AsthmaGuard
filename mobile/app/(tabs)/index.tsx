@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import Colors from '../../constants/Colors';
@@ -106,9 +107,11 @@ export default function DashboardScreen() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchPatients();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchPatients();
+    }, [])
+  );
 
   const onRefresh = async () => {
     setRefreshing(true);

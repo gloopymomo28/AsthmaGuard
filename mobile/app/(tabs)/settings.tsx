@@ -37,23 +37,10 @@ export default function SettingsScreen() {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* Profile Section */}
-      <View style={styles.profileCard}>
-        <View style={styles.profileAvatar}>
-          <Ionicons name="person" size={28} color={Colors.dark.primary} />
-        </View>
-        <View>
-          <Text style={styles.profileName}>Physician</Text>
-          <Text style={styles.profileEmail}>doctor@demo.com</Text>
-        </View>
-      </View>
-
       {/* General Settings */}
       <Text style={styles.sectionLabel}>General</Text>
       <View style={styles.section}>
         <SettingsRow icon="notifications-outline" title="Notifications" subtitle="Push alerts for high-risk patients" />
-        <SettingsRow icon="moon-outline" title="Appearance" subtitle="Dark mode (default)" />
-        <SettingsRow icon="language-outline" title="Language" subtitle="English" />
       </View>
 
       {/* AI & Data Settings */}

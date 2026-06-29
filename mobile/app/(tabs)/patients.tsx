@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
 import Colors from '../../constants/Colors';
 import { patientService } from '../../services/api';
@@ -29,9 +30,11 @@ export default function PatientsScreen() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    fetchPatients();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      fetchPatients();
+    }, [])
+  );
 
   useEffect(() => {
     if (!search) {
@@ -139,6 +142,15 @@ export default function PatientsScreen() {
           </View>
         }
       />
+
+      {/* Floating Add Patient Button */}
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => router.push('/add-patient')}
+        activeOpacity={0.85}
+      >
+        <Ionicons name="person-add" size={24} color="#fff" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -199,4 +211,20 @@ const styles = StyleSheet.create({
   riskText: { fontSize: 13, fontWeight: '700' },
   empty: { alignItems: 'center', paddingTop: 60, gap: 12 },
   emptyText: { fontSize: 14, color: Colors.dark.textMuted },
+  fab: {
+    position: 'absolute',
+    bottom: 24,
+    right: 24,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    backgroundColor: Colors.dark.primary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: Colors.dark.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
 });

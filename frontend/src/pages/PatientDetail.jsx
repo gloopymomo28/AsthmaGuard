@@ -8,7 +8,7 @@ import VitalsGrid from '../components/dashboard/VitalsGrid';
 import VitalsChart from '../components/charts/VitalsChart';
 import TreatmentSimulator from '../components/clinical/TreatmentSimulator';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
+import { jsPDF } from 'jspdf';
 
 export default function PatientDetail() {
   const { id } = useParams();
