@@ -2,21 +2,13 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
+import { Alert } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
 
 import { AuthProvider } from '../context/AuthContext';
 import Colors from '../constants/Colors';
-import * as Notifications from 'expo-notifications';
 import API_URL from '../constants/Api';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -37,10 +29,8 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-  // Real-time Push Notifications via WebSockets
+  // Real-time alerts via WebSockets (Expo Go compatible — uses Alert instead of push notifications)
   useEffect(() => {
-    Notifications.requestPermissionsAsync();
-
     const wsUrl = API_URL.replace(/^http/, 'ws').replace(/\/api$/, '/ws/alerts');
     const ws = new WebSocket(wsUrl);
 
@@ -49,18 +39,18 @@ export default function RootLayout() {
         const data = JSON.parse(event.data);
         if (data.alert_level === 'High') {
           const risk = Math.round(data.risk_scores[data.risk_scores.length - 1] * 100);
-          Notifications.scheduleNotificationAsync({
-            content: {
-              title: "CRITICAL ALERT 🚨",
-              body: `A patient's AI risk score jumped to ${risk}%. Check dashboard immediately.`,
-              sound: 'default',
-            },
-            trigger: null, // Fire immediately
-          });
+          Alert.alert(
+            'CRITICAL ALERT 🚨',
+            `A patient's AI risk score jumped to ${risk}%. Check dashboard immediately.`
+          );
         }
       } catch (e) {
-        console.warn("Failed to parse websocket message", e);
+        console.warn('Failed to parse websocket message', e);
       }
+    };
+
+    ws.onerror = () => {
+      console.warn('WebSocket connection failed — backend may be asleep');
     };
 
     return () => ws.close();

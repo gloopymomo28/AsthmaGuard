@@ -1,5 +1,4 @@
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import API_URL from '../constants/Api';
 
 const api = axios.create({
@@ -7,19 +6,22 @@ const api = axios.create({
   timeout: 15000,
 });
 
+// In-memory cache (works in Expo Go without native modules)
+const cache = new Map<string, any>();
+
 // Mock data fallback (mirrors web frontend)
-const mockPatients: Patient[] = [];
+const mockPatients: any[] = [];
 
 export const patientService = {
   getPatients: async (): Promise<any[]> => {
     try {
       const response = await api.get('/patients');
-      await AsyncStorage.setItem('@asthma_patients', JSON.stringify(response.data));
+      cache.set('patients', response.data);
       return response.data;
     } catch (error) {
       console.warn('Backend unavailable, falling back to local cache', error);
-      const cached = await AsyncStorage.getItem('@asthma_patients');
-      if (cached) return JSON.parse(cached);
+      const cached = cache.get('patients');
+      if (cached) return cached;
       return [];
     }
   },
