@@ -34,6 +34,16 @@ export const patientService = {
       return mockPatients.find((p) => p.id === id) || mockPatients[0];
     }
   },
+
+  deletePatient: async (id: string): Promise<boolean> => {
+    try {
+      await api.delete(`/patients/${id}`);
+      return true;
+    } catch {
+      console.warn('Failed to delete patient');
+      return false;
+    }
+  },
 };
 
 export const predictionService = {

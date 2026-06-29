@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
   RefreshControl,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -48,6 +49,26 @@ export default function PatientsScreen() {
     setRefreshing(false);
   };
 
+  const handleDelete = (patient: any) => {
+    Alert.alert(
+      'Remove Patient',
+      `Are you sure you want to remove ${patient.name}?`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Remove',
+          style: 'destructive',
+          onPress: async () => {
+            const success = await patientService.deletePatient(patient.id);
+            if (success) {
+              setPatients((prev) => prev.filter((p) => p.id !== patient.id));
+            }
+          },
+        },
+      ]
+    );
+  };
+
   const getRiskColor = (score: number) =>
     score >= 70 ? Colors.dark.danger : score >= 40 ? Colors.dark.warning : Colors.dark.success;
 
@@ -57,6 +78,7 @@ export default function PatientsScreen() {
       <TouchableOpacity
         style={styles.row}
         onPress={() => router.push(`/patient/${item.id}`)}
+        onLongPress={() => handleDelete(item)}
         activeOpacity={0.7}
       >
         <View

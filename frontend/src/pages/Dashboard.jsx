@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Users, AlertTriangle, Activity, Brain } from 'lucide-react';
+import { Users, AlertTriangle, Activity, Brain, Cpu, Trash2 } from 'lucide-react';
 import StatsCard from '../components/dashboard/StatsCard';
 import PatientCard from '../components/dashboard/PatientCard';
 import AlertFeed from '../components/dashboard/AlertFeed';
@@ -38,6 +38,14 @@ export default function Dashboard() {
   }, [lastAlert]);
 
   const highRiskCount = patients.filter(p => p.riskScore >= 70).length;
+
+  const handleDeletePatient = async (id) => {
+    if (!window.confirm('Are you sure you want to remove this patient?')) return;
+    const success = await patientService.deletePatient(id);
+    if (success) {
+      setPatients(prev => prev.filter(p => p.id !== id));
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -82,6 +90,18 @@ export default function Dashboard() {
         />
       </div>
 
+      {/* CAMP-Trained PatchTST Model Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-emerald-600 to-cyan-500 p-5 flex items-center gap-4 shadow-lg shadow-emerald-900/20">
+        <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
+          <Cpu size={28} className="text-white" />
+        </div>
+        <div className="flex-1">
+          <h3 className="text-white font-bold text-base">CAMP-Trained PatchTST Model</h3>
+          <p className="text-white/70 text-sm">695 patients | Val Loss: 2.18</p>
+        </div>
+        <span className="px-3 py-1 bg-white/20 rounded-lg text-white text-xs font-bold tracking-wider">LIVE</span>
+      </div>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main Content Area */}
         <div className="lg:col-span-2 space-y-4">
@@ -99,7 +119,7 @@ export default function Dashboard() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {patients.map(patient => (
-                <PatientCard key={patient.id} patient={patient} />
+                <PatientCard key={patient.id} patient={patient} onDelete={handleDeletePatient} />
               ))}
             </div>
           )}

@@ -34,6 +34,16 @@ export const patientService = {
     } catch (error) {
       return { id: Math.random().toString(36).substr(2, 9), ...data };
     }
+  },
+
+  deletePatient: async (id) => {
+    try {
+      await api.delete(`/patients/${id}`);
+      return true;
+    } catch (error) {
+      console.warn('Failed to delete patient', error);
+      return false;
+    }
   }
 };
 
