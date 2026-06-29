@@ -10,16 +10,7 @@ import 'react-native-reanimated';
 import { AuthProvider } from '../context/AuthContext';
 import Colors from '../constants/Colors';
 import API_URL from '../constants/Api';
-
-import * as Notifications from 'expo-notifications';
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: true,
-  }),
-});
+import Toast from 'react-native-toast-message';
 
 export { ErrorBoundary } from 'expo-router';
 
@@ -51,13 +42,14 @@ export default function RootLayout() {
         if (data.alert_level === 'High') {
           const risk = Math.round(data.risk_scores[data.risk_scores.length - 1] * 100);
           
-          await Notifications.scheduleNotificationAsync({
-            content: {
-              title: 'CRITICAL ALERT 🚨',
-              body: `A patient's AI risk score jumped to ${risk}%. Check dashboard immediately.`,
-              sound: true,
-            },
-            trigger: null, // trigger immediately
+          Toast.show({
+            type: 'error',
+            text1: 'CRITICAL ALERT 🚨',
+            text2: `A patient's AI risk score jumped to ${risk}%. Check dashboard immediately.`,
+            position: 'top',
+            visibilityTime: 6000,
+            autoHide: true,
+            topOffset: 50,
           });
         }
       } catch (e) {
@@ -106,6 +98,7 @@ export default function RootLayout() {
           }}
         />
       </Stack>
+      <Toast />
     </AuthProvider>
   );
 }
